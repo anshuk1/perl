@@ -14,29 +14,38 @@ BEGIN
         &remove_prefix              &remove_duplicates
         &trim                       &root_dir					
         &date_time_stamp            &file_mod_time
-        &read_file					        &file_title 
+        &read_file		    		&file_title 
         &list_max                   &file_mime_type                                 
         &time_stamp                 &md5sum
         &run_command				       
         );    
 }
 
-# Function to return the root directory of the passed in file path
-# e.g. c:\test\somefile should return c:\test
+# Function to run a command.
+# Timeout can be optionally passsed in with command string.
+# Returns exit code and output as scalars in a list of 2 elements.
+# Returns undef as exit code if command failed. The error message (if any) is in output.
+# Error message is "Timeout" if timeout is reached.
 #
-sub root_dir
+sub run_command
 {
-	my $path = shift;
+    local $SIG{ALRM} = sub { die "Timeout" };
+    
+    my ($cmd, $timeout) = @_;
+    my $output;
+    my $msg = (caller 0)[3] . ": Bad function call from " . (caller 1)[3] . "()\n";
+    
+    $timeout = 0 if not $timeout;
 	
-	$path =~ s/\\/\//g;
+    eval
+    {
+        die $msg . "Command not passed in.\n" if not $cmd;
+        alarm($timeout);
+        $output = qx{$cmd 2>&1};
+        alarm(0);
+    };
 
-	return $path if -d $path;
-
-	my @dirs = split "/", $path;
-	
-	$dirs[$#dirs] = undef;
-	
-	return join "/", @dirs;
+    $@ ? return (undef, $@) : return ($? >> 8, $output);
 }
 
 # Function to calculate md5sum of the specified file
@@ -174,32 +183,17 @@ sub list_max
     return $max;
 }
 
-# Function to run a command.
-# Timeout can be optionally passsed in with command string.
-# Returns exit code and output as scalars in a list of 2 elements.
-# Returns undef as exit code if command failed. The error message (if any) is in output.
-# Error message is "Timeout" if timeout is reached.
+# Function to return the root directory of the passed in file path
+# e.g. c:\test\somefile should return c:\test
 #
-sub run_command
+sub root_dir
 {
-    local $SIG{ALRM} = sub { die "Timeout" };
-    
-    my ($cmd, $timeout) = @_;
-    my $output;
-    my $msg = (caller 0)[3] . ": Bad function call from " . (caller 1)[3] . "()\n";
-    
-    $timeout = 0 if not $timeout;
-	
-    eval
-    {
-        die $msg . "Command not passed in.\n" if not $cmd;
-        alarm($timeout);
-        $output = qx{$cmd 2>&1};
-        alarm(0);
-    };
-
-    $@ ? return (undef, $@) : return ($? >> 8, $output);
+	my $path = shift;
+	$path =~ s/\\/\//g;
+	return $path if -d $path;
+	my @dirs = split "/", $path;
+	$dirs[$#dirs] = undef;
+	return join "/", @dirs;
 }
-
 
 1;
