@@ -14,7 +14,7 @@ BEGIN
         &remove_prefix              &remove_duplicates
         &trim                       &root_dir					
         &date_time_stamp            &file_mod_time
-        &read_file		    		&file_title 
+        &read_file		    &file_title 
         &list_max                   &file_mime_type                                 
         &time_stamp                 &md5sum
         &run_command				       
