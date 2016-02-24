@@ -102,19 +102,6 @@ sub read_file
     $@ ? return undef : return 1 ;
 }
 
-# Functions to return the current date/time and the current time
-#
-sub date_time_stamp
-{
-    my ($sec, $min, $hour, $mday, $mon, $year) = localtime(time);
-    return sprintf "%04d%02d%02d-%02d%02d%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec;
-}
-sub time_stamp
-{
-    my ($sec, $min, $hour, $mday, $mon, $year) = localtime(time);
-    return sprintf "%02d:%02d:%02d", $hour, $min, $sec;
-}
-
 # Function to remove :: and preceeding string from param
 #
 sub remove_prefix
@@ -149,7 +136,20 @@ sub trim
 	
 	return wantarray ? @out : $out[0];
 }
-	
+
+# Functions to return the current date/time and the current time
+#
+sub date_time_stamp
+{
+    my ($sec, $min, $hour, $mday, $mon, $year) = localtime(time);
+    return sprintf "%04d%02d%02d-%02d%02d%02d", $year + 1900, $mon + 1, $mday, $hour, $min, $sec;
+}
+sub time_stamp
+{
+    my ($sec, $min, $hour, $mday, $mon, $year) = localtime(time);
+    return sprintf "%02d:%02d:%02d", $hour, $min, $sec;
+}
+
 # Function to return the modification time of a file
 #
 sub file_mod_time
